@@ -9,6 +9,15 @@ const requests = require("./extras/requests");
 
 var log = console.log;
 
+// ror2mm protocol handler
+if (process.defaultApp) {
+	if (process.argv.length >= 2) {
+		app.setAsDefaultProtocolClient('ror2mm', process.execPath, [path.resolve(process.argv[1])]);
+	}
+} else {
+	app.setAsDefaultProtocolClient('ror2mm');
+}
+
 // Starts the actual BrowserWindow, which is only run when using the
 // GUI, for the CLI this function is never called.
 function start() {
@@ -222,17 +231,32 @@ ipcMain.on("newpath", (event, newpath) => {
 process.chdir(app.getPath("appData"));
 
 // starts the GUI or CLI
+const gotTheLock = app.requestSingleInstanceLock()
 if (cli.hasArgs()) {
 	if (cli.hasParam("updatevp")) {
 		utils.updatevp(true);
 	} else {
 		cli.init();
 	}
+} else if (!gotTheLock) {
+	app.quit();
 } else {
 	app.on("ready", () => {
 		app.setPath("userData", path.join(app.getPath("cache"), app.name));
 		start();
+	});
+
+	app.on('second-instance', (event, commandLine, workingDirectory) => {
+		// Someone tried to run a second instance, we should focus our window.
+		if (win) {
+			if (win.isMinimized()) win.restore()
+			win.focus()
+		}
 	})
+
+	app.on('open-url', (event, url) => {
+		dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`)
+	});
 }
 
 // returns cached requests
