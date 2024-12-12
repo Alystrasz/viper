@@ -46,6 +46,7 @@ var settings = {
 	originkill: false,
 	nsargs: "-multiple",
 	zip: "/northstar.zip",
+	ns_mods_manifest_version: 0,
 
 	linux_launch_cmd_ns: "",
 	linux_launch_cmd_vanilla: "",
