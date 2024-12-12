@@ -285,6 +285,13 @@ function modfile_pre() {
 	if (! fs.existsSync(mods.modfile.file)) {
 		fs.writeFileSync(mods.modfile.file, "{}");
 	}
+
+	// load up manifest version
+	let data = json(mods.modfile.file);
+	const fileVersion = data["Version"];
+	const version = fileVersion == undefined ? 0 : +fileVersion;
+	settings.ns_mods_manifest_version = version;
+	console.info(`Using mods manifest format v${version}.`);
 }
 
 // manages the enabledmods.json file
